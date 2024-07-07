@@ -36,30 +36,45 @@
 </head>
 <body>
     <div class="container">
-        <input type="text" id="userName" placeholder="Enter your name">
+        <input type="text" id="excludeName" placeholder="Enter name to exclude">
         <button onclick="generateRandomName()">Generate Random Name</button>
         <div id="result"></div>
     </div>
 
+    <div id="namesContainer" style="display: none;"></div>
+
     <script>
-        let names = ['Alice', 'Bob', 'Charlie', 'David', 'Emma', 'Frank', 'Grace', 'Henry'];
+    let names = [];
 
-        function generateRandomName() {
-            const userName = document.getElementById('userName').value.trim().toLowerCase();
-            const availableNames = names.filter(name => name.toLowerCase() !== userName);
+    function loadNames() {
+        fetch('names.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('namesContainer').innerHTML = data;
+                const namesList = document.getElementById('namesList');
+                names = Array.from(namesList.getElementsByTagName('li')).map(li => li.textContent);
+            });
+    }
 
-            if (availableNames.length === 0) {
-                document.getElementById('result').textContent = "No names available";
-                return;
-            }
-
-            const randomIndex = Math.floor(Math.random() * availableNames.length);
-            const randomName = availableNames[randomIndex];
-            document.getElementById('result').textContent = randomName;
-
-            // Remove the generated name from the original list
-            names = names.filter(name => name.toLowerCase() !== randomName.toLowerCase());
+    function generateRandomName() {
+        const excludeName = document.getElementById('excludeName').value.trim().toLowerCase();
+        const availableNames = names.filter(name => name.toLowerCase() !== excludeName);
+        
+        if (availableNames.length === 0) {
+            document.getElementById('result').textContent = "No names available";
+            return;
         }
+        
+        const randomIndex = Math.floor(Math.random() * availableNames.length);
+        const randomName = availableNames[randomIndex];
+        document.getElementById('result').textContent = randomName;
+        
+        // Remove the selected name from the original list
+        names = names.filter(name => name !== randomName);
+    }
+
+    // Load names when the page loads
+    window.onload = loadNames;
     </script>
 </body>
 </html>
